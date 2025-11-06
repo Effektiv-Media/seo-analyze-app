@@ -1,73 +1,145 @@
-# React + TypeScript + Vite
+# SEO Analyze - Effektiv Media
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+En modern React-applikation för SEO-analys av webbplatser. Denna landingsida är designad för att generera leads genom att erbjuda kostnadsfria SEO-rapporter.
 
-Currently, two official plugins are available:
+## Funktioner
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Responsiv landingsida** med modern design
+- **URL-validering** för webbplatser
+- **Animerad laddningsskärm** med steg-för-steg progress
+- **Enkel kontaktformulär** för leadgenerering
+- **Detaljerad SEO-rapport** med visuella metriker
+- **Mobilvänlig design** med Tailwind CSS
+- **Smooth animationer** med Framer Motion
 
-## React Compiler
+## Teknisk stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React 19** med TypeScript
+- **Vite** för snabb utveckling
+- **Tailwind CSS v4** för styling
+- **Framer Motion** för animationer
+- **Lucide React** för ikoner
+- **Axios** för API-anrop
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Projektstruktur
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── components/
+│   ├── LandingPage.tsx    # Startsida med URL-input
+│   ├── LoadingScreen.tsx  # Animerad laddningsskärm
+│   ├── ContactForm.tsx    # Formulär för användaruppgifter
+│   └── SEOReport.tsx      # Detaljerad rapport
+├── services/
+│   └── apiService.ts      # API-integration (mock)
+├── App.tsx                # Huvudkomponent med state
+└── main.tsx              # Entry point
+
+```
+
+## Användarflöde
+
+1. **Landingsida**: Användaren anger sin webbplats-URL
+2. **Laddning**: Animerad skärm visar analysprocessen
+3. **Kontaktformulär**: Användaren fyller i namn, e-post och telefon
+4. **Rapport**: Detaljerad SEO-rapport med förbättringsförslag
+
+## API-integration
+
+### Google PageSpeed Insights
+
+För att integrera med riktiga API:er, uppdatera `src/services/apiService.ts`:
+
+```typescript
+// Exempel för PageSpeed Insights API
+const API_KEY = 'your-google-api-key'
+const PAGESPEED_API = 'https://www.googleapis.com/pagespeed/v5/runPagespeed'
+
+export const analyzeWithPageSpeed = async (url: string): Promise<LighthouseMetrics> => {
+  const response = await fetch(`${PAGESPEED_API}?url=${url}&key=${API_KEY}`)
+  const data = await response.json()
+  
+  return {
+    performance: data.lighthouseResult.categories.performance.score * 100,
+    accessibility: data.lighthouseResult.categories.accessibility.score * 100,
+    bestPractices: data.lighthouseResult.categories['best-practices'].score * 100,
+    seo: data.lighthouseResult.categories.seo.score * 100,
+  }
+}
+```
+
+### Deepseek AI Integration
+
+```typescript
+// Exempel för AI-driven förslag
+export const getAISuggestions = async (url: string, metrics: LighthouseMetrics): Promise<string[]> => {
+  const response = await fetch('https://api.deepseek.com/v1/suggestions', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer your-deepseek-api-key',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ url, metrics })
+  })
+  
+  const data = await response.json()
+  return data.suggestions
+}
+```
+
+## Miljövariabler
+
+Skapa en `.env` fil för API-nycklar:
+
+```env
+VITE_GOOGLE_PAGESPEED_API_KEY=your-google-api-key
+VITE_DEEPSEEK_API_KEY=your-deepseek-api-key
+```
+
+## Lead-hantering
+
+Kontaktformulärdata kan integreras med:
+- **CRM-system** (HubSpot, Salesforce)
+- **E-postmarknadsföring** (Mailchimp, SendGrid)
+- **Databas** för leadlagring
+- **Google Sheets** för enkel hantering
+
+## Deployment
+
+### Vercel (Rekommenderat)
+```bash
+npm run build
+npx vercel --prod
+```
+
+### Netlify
+```bash
+npm run build
+# Ladda upp dist/ mappen till Netlify
+```
+
+## Anpassning för Instagram-annonser
+
+- **Call-to-action**: "Få kostnadsfri SEO-analys"
+- **Målgrupp**: Företagsägare, marknadsförare
+- **Landningssida**: Optimerad för mobil (Instagram-trafik)
+- **Leadmagnet**: Kostnadsfri SEO-rapport
+
+## Förbättringar för produktion
+
+1. **Analytics**: Lägg till Google Analytics/GTM
+2. **A/B-testning**: Testa olika versioner av formulär
+3. **Säkerhet**: Implementera rate limiting för API-anrop
+4. **SEO**: Lägg till meta tags och strukturerad data
+5. **Prestanda**: Implementera code splitting och lazy loading
+
+## Support
+
+För frågor kontakta Effektiv Media utvecklingsteam.
