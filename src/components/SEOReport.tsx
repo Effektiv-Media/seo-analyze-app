@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion'
 import { 
-  Download, 
   ArrowLeft, 
   CheckCircle, 
   AlertTriangle, 
@@ -142,10 +141,7 @@ export default function SEOReport({ analysisData, userData, onStartOver, isAiLoa
                   <ArrowLeft className="w-4 h-4" />
                   <span className="hidden sm:inline">Ny Analys</span>
                 </button>
-                <button className="bg-linear-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-3 py-2 rounded-lg flex items-center space-x-2 transition-all duration-300 text-sm">
-                  <Download className="w-4 h-4" />
-                  <span className="hidden sm:inline">Exportera</span>
-                </button>
+               
               </div>
             </div>
           </div>

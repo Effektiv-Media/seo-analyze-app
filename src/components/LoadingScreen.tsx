@@ -13,6 +13,7 @@ interface LoadingScreenProps {
 export default function LoadingScreen({ websiteUrl, error, onRetry, onBack }: LoadingScreenProps) {
   const [currentStep, setCurrentStep] = useState(0)
   const [checkedSteps, setCheckedSteps] = useState<number[]>([])
+  const [progressBarStep, setProgressBarStep] = useState(0)
 
   const loadingSteps = [
     "Ansluter till webbplatsen",
@@ -37,7 +38,8 @@ export default function LoadingScreen({ websiteUrl, error, onRetry, onBack }: Lo
 
   useEffect(() => {
     if (!error) {
-      const interval = setInterval(() => {
+      // Step scrolling animation at original speed (2000ms)
+      const stepInterval = setInterval(() => {
         setCurrentStep(prev => {
           const newStep = prev + 1
           if (newStep <= loadingSteps.length) {
@@ -49,9 +51,23 @@ export default function LoadingScreen({ websiteUrl, error, onRetry, onBack }: Lo
           }
           return prev
         })
-      }, 2000) // Slower timing for smoother feel
+      }, 1600) // Original timing for smooth scrolling
 
-      return () => clearInterval(interval)
+      // Progress bar animation at faster speed (1200ms)
+      const progressInterval = setInterval(() => {
+        setProgressBarStep(prev => {
+          const newStep = prev + 1
+          if (newStep <= loadingSteps.length) {
+            return newStep
+          }
+          return prev
+        })
+      }, 1000) // Faster timing for progress bar
+
+      return () => {
+        clearInterval(stepInterval)
+        clearInterval(progressInterval)
+      }
     }
   }, [error, loadingSteps.length])
 
@@ -205,7 +221,7 @@ export default function LoadingScreen({ websiteUrl, error, onRetry, onBack }: Lo
                   <motion.div
                     className="bg-linear-to-r from-blue-500 via-purple-500 to-emerald-500 h-3 rounded-full shadow-lg"
                     animate={{ 
-                      width: `${(currentStep / loadingSteps.length) * 100}%` 
+                      width: `${(progressBarStep / loadingSteps.length) * 100}%` 
                     }}
                     transition={{ 
                       duration: 0.8,
@@ -213,17 +229,6 @@ export default function LoadingScreen({ websiteUrl, error, onRetry, onBack }: Lo
                     }}
                   />
                 </div>
-                <motion.p 
-                  className="text-xs md:text-sm text-gray-400 text-center"
-                  animate={{ opacity: [0.7, 1, 0.7] }}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                >
-                  Steg {Math.min(currentStep + 1, loadingSteps.length)} av {loadingSteps.length}
-                </motion.p>
               </div>
             </motion.div>
           ) : (
