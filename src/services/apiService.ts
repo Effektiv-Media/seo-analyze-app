@@ -5,6 +5,8 @@ const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY
 const PAGESPEED_API_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed'
 const DEEPSEEK_API_ENDPOINT = 'https://api.deepseek.com/v1/chat/completions'
 const DEEPSEEK_API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY
+const LEADS_API_ENDPOINT = 'https://leads.effektivmedia.nu/api/leads'
+const LEADS_API_KEY = import.meta.env.VITE_LEADS_API_KEY
 
 export interface LighthouseMetrics {
   performance: number
@@ -29,6 +31,14 @@ export interface DeepseekAnalysisResponse {
   technicalRecommendations: string[]
   businessImpact: string
   overallAssessment: string
+}
+
+export interface LeadData {
+  name: string
+  email: string
+  phone: string
+  source?: string
+  company?: string
 }
 
 export interface SEOAnalysisResult {
@@ -474,4 +484,37 @@ export const formatUrl = (url: string): string => {
     return `https://${url}`
   }
   return url
+}
+
+// Function to submit lead data
+export const submitLead = async (leadData: LeadData): Promise<void> => {
+  try {
+    const payload = {
+      name: leadData.name,
+      email: leadData.email,
+      source: leadData.source || 'SEO Analys',
+      phone: leadData.phone,
+      company: leadData.company || 'Dont fill in'
+    }
+
+    console.log('Submitting lead:', payload)
+    
+    const response = await fetch(LEADS_API_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': LEADS_API_KEY
+      },
+      body: JSON.stringify(payload)
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to submit lead: ${response.status} ${response.statusText}`)
+    }
+
+    console.log('Lead submitted successfully')
+  } catch (error) {
+    console.error('Error submitting lead:', error)
+    throw new Error('Kunde inte skicka dina uppgifter. Försök igen senare.')
+  }
 }

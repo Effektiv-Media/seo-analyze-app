@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { User, Mail, Phone, ArrowRight } from 'lucide-react'
 import emLogo from '../assets/emLogo.png'
 import type { UserData } from '../App'
+import { submitLead } from '../services/apiService'
 
 interface ContactFormProps {
   onSubmit: (data: UserData) => void
@@ -16,6 +17,8 @@ export default function ContactForm({ onSubmit, websiteUrl }: ContactFormProps) 
     phone: ''
   })
   const [errors, setErrors] = useState<Partial<UserData>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const validateForm = () => {
     const newErrors: Partial<UserData> = {}
@@ -40,10 +43,28 @@ export default function ContactForm({ onSubmit, websiteUrl }: ContactFormProps) 
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (validateForm()) {
-      onSubmit(formData)
+      setIsSubmitting(true)
+      setSubmitError(null)
+      
+      try {
+        // Submit lead to API
+        await submitLead({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          source: 'SEO Analys'
+        })
+        
+        // Proceed to next step
+        onSubmit(formData)
+      } catch (error) {
+        setSubmitError(error instanceof Error ? error.message : 'Ett oväntat fel uppstod')
+      } finally {
+        setIsSubmitting(false)
+      }
     }
   }
 
@@ -197,15 +218,25 @@ export default function ContactForm({ onSubmit, websiteUrl }: ContactFormProps) 
                 {errors.phone && <p className="text-red-400 text-sm mt-1">{errors.phone}</p>}
               </div>
 
+              {/* Submit Error */}
+              {submitError && (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-4">
+                  <p className="text-red-400 text-sm">{submitError}</p>
+                </div>
+              )}
+
               {/* Submit Button */}
               <motion.button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 md:py-4 px-6 md:px-8 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 md:space-x-3 transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/25"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                disabled={isSubmitting}
+                className={`w-full ${isSubmitting ? 'bg-gray-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500'} text-white font-semibold py-3 md:py-4 px-6 md:px-8 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 md:space-x-3 transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/25`}
+                whileHover={!isSubmitting ? { scale: 1.02 } : {}}
+                whileTap={!isSubmitting ? { scale: 0.98 } : {}}
               >
-                <span className="text-base md:text-lg">Visa min SEO-rapport</span>
-                <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
+                <span className="text-base md:text-lg">
+                  {isSubmitting ? 'Skickar...' : 'Visa min SEO-rapport'}
+                </span>
+                {!isSubmitting && <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />}
               </motion.button>
             </form>
 
