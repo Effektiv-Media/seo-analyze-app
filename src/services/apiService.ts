@@ -494,7 +494,7 @@ export const submitLead = async (leadData: LeadData): Promise<void> => {
       email: leadData.email,
       source: leadData.source || 'SEO Analys',
       phone: leadData.phone,
-      company: leadData.company || 'Dont fill in'
+      company: leadData.company || ''
     }
 
     console.log('Submitting lead:', payload)
